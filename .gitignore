@@ -1,0 +1,3 @@
+examples/middleware/middleware
+cmd/bowness/bowness
+*.debug
