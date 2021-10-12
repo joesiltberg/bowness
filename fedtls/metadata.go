@@ -61,10 +61,19 @@ type Issuer struct {
 	X509certificate string `json:"x509certificate"`
 }
 
+// Server includes the information the client needs about a server which it wants to connect to
+type Server struct {
+	Description *string  `json:"description"`
+	BaseURI     string   `json:"base_uri"`
+	Tags        []string `json:"tags"`
+	Pins        []Pin    `json:"pins"`
+}
+
 // Entity represents one of the actors registered in the federation
 type Entity struct {
 	Issuers        []Issuer `json:"issuers"`
-	Clients        []Client `json:"clients"`
+	Clients        []Client `json:"clients,omitempty"`
+	Servers        []Server `json:"servers,omitempty"`
 	EntityID       string   `json:"entity_id"`
 	Organization   *string  `json:"organization"`
 	OrganizationID *string  `json:"organization_id"`
@@ -72,6 +81,7 @@ type Entity struct {
 
 // Metadata is the complete representation of all entities in the federation
 type Metadata struct {
+	Version  string   `json:"version"`
 	CacheTTL int      `json:"cache_ttl"`
 	Entities []Entity `json:"entities"`
 }
