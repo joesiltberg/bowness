@@ -18,19 +18,19 @@ import (
 )
 
 func verify(signed, jwks []byte) (*Metadata, error) {
-	keyset, err := jwk.ParseBytes(jwks)
+	keyset, err := jwk.Parse(jwks)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse JWKS: %v", err)
 	}
 
 	r := bytes.NewReader(signed)
-	message, err := jws.Parse(r)
+	message, err := jws.ParseReader(r)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse JWS: %v", err)
 	}
 
-	payload, err := jws.VerifyWithJWKSet(signed, keyset, nil)
+	payload, err := jws.VerifySet(signed, keyset)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to verify JWS: %v", err)
