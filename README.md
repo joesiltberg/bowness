@@ -42,6 +42,7 @@ in order to load new metadata.
 The following headers will be added by the reverse proxy:
 
  * X-Fedtlsauth-Entity-Id
+ * X-Fedtlsauth-Normalized-Entity-Id
  * X-Fedtlsauth-Organization (if available in the metadata)
  * X-Fedtlsauth-Organization-Id (if available in the metadata)
  * X-Forwarded-For (ip of the client)
