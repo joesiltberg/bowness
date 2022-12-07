@@ -117,3 +117,30 @@ verifying or parsing the metadata.
 If you're developing your backend in Go the authentication middleware
 can be used directly by your code if you prefer. See the example
 in the [examples/middleware](examples/middleware) directory.
+
+## Docker
+[`Dockerfile`](Dockerfile) is a two-stage Docker Build file that can build a
+Bowness image. The image can be built like so:
+
+```
+$ cd bowness
+$ sudo docker build -t bowness .
+```
+
+Once the image has been built, it can be used to create a container which runs
+Bowness inside Docker. Here's an example using the `docker` CLI:
+
+```
+$ sudo docker run \
+  --name=bowness \
+  -p 8443:8443 \
+  --rm \
+  -v ".../config.yaml:/app/config.yaml:ro" \
+  -v ".../jwks.trial:/app/jwks.trial:ro" \
+  -v ".../metadata-cache.json:/app/metadata-cache.json" \
+  -v ".../cert.pem:/app/cert.pem:ro" \
+  -v ".../key.pem:/app/key.pem:ro" \
+  bowness
+```
+
+Bowness assumes `config.yaml` is located in `/app` inside the container.
