@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lestrrat-go/jwx/jwk"
-	"github.com/lestrrat-go/jwx/jws"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
 func verify(signed, jwks []byte) (*Metadata, error) {
@@ -30,7 +30,7 @@ func verify(signed, jwks []byte) (*Metadata, error) {
 		return nil, fmt.Errorf("Failed to parse JWS: %v", err)
 	}
 
-	payload, err := jws.VerifySet(signed, keyset)
+	payload, err := jws.Verify(signed, jws.WithKeySet(keyset))
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to verify JWS: %v", err)
