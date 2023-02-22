@@ -11,7 +11,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/PuerkitoBio/purell"
 	"github.com/joesiltberg/bowness/fedtls"
 )
 
@@ -24,10 +23,9 @@ const (
 )
 
 const (
-	entityIDHeader           string = "X-FedTLSAuth-Entity-ID"
-	normalizedEntityIDHeader        = "X-FedTLSAuth-Normalized-Entity-ID"
-	organizationHeader              = "X-FedTLSAuth-Organization"
-	organizationIDHeader            = "X-FedTLSAuth-Organization-ID"
+	entityIDHeader       string = "X-FedTLSAuth-Entity-ID"
+	organizationHeader          = "X-FedTLSAuth-Organization"
+	organizationIDHeader        = "X-FedTLSAuth-Organization-ID"
 )
 
 // EntityIDFromContext returns the authenticated entity ID
@@ -37,26 +35,6 @@ const (
 // is in place before the request handler.
 func EntityIDFromContext(ctx context.Context) string {
 	return ctx.Value(entityIDKey).(string)
-}
-
-func normalizeEntityID(entityID string) string {
-	normalized, err := purell.NormalizeURLString(entityID, purell.FlagsSafe)
-	if err != nil {
-		// This shouldn't happen assuming the federation ensures all entity ids are
-		// valid URIs
-		return entityID
-	} else {
-		return normalized
-	}
-}
-
-// NormalizedEntityIDFromContext returns the authenticated entity ID in normalized form.
-//
-// Normalized for is more appropriate for comparing entity ids or when an entity id is
-// used as a key for lookup.
-func NormalizedEntityIDFromContext(ctx context.Context) string {
-	entityID := EntityIDFromContext(ctx)
-	return normalizeEntityID(entityID)
 }
 
 // OrganizationFromContext returns the peer's organization or nil
@@ -128,7 +106,6 @@ func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore) http.Handler 
 		r2 := r.Clone(newContext)
 
 		r2.Header.Set(entityIDHeader, entityID)
-		r2.Header.Set(normalizedEntityIDHeader, normalizeEntityID(entityID))
 		setOrClear(r2.Header, organizationHeader, org)
 		setOrClear(r2.Header, organizationIDHeader, orgID)
 
