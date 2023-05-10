@@ -1,5 +1,9 @@
 ## Releases
 
+## Unreleased
+#### New features
+  - The bowness binary now has a -v/--version commnand line flag (#4)
+
 ## v1.0.0 (2023-02-22)
   - Normalization of entity IDs was removed.
     Normalized IDs shouldn't be used anyway, and by removing this a
