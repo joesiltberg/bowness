@@ -63,13 +63,20 @@ func setOrClear(h http.Header, headerName string, value *string) {
 	}
 }
 
+// APIKey is used to configure an API key to use in all requests
+// made by the middleware.
+type APIKey struct {
+	HeaderName string // Name of HTTP header to use
+	Key        string // The actual API key
+}
+
 // AuthMiddleware is the authentication middlware for federated TLS authentication.
 //
 // It assumes that the http.Server is set up with a ConnContext as provided
 // by ContextModifier() so that the middleware can access the connection of
 // the request and store some authentication state in the context associated
 // with the connection.
-func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore) http.Handler {
+func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKey) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -108,6 +115,10 @@ func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore) http.Handler 
 		r2.Header.Set(entityIDHeader, entityID)
 		setOrClear(r2.Header, organizationHeader, org)
 		setOrClear(r2.Header, organizationIDHeader, orgID)
+
+		if apiKey != nil {
+			r2.Header.Set(apiKey.HeaderName, apiKey.Key)
+		}
 
 		h.ServeHTTP(w, r2)
 	})

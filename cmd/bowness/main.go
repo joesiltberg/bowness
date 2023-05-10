@@ -65,6 +65,9 @@ func waitForShutdownSignal() {
 }
 
 func main() {
+	viper.SetEnvPrefix("BWNS")
+	viper.AutomaticEnv()
+
 	viper.SetDefault("MetadataURL", "https://md.swefed.se/kontosynk/kontosynk-prod-1.jws")
 	viper.SetDefault("DefaultCacheTTL", 3600)
 	viper.SetDefault("NetworkRetry", 60)
@@ -130,9 +133,20 @@ func main() {
 		proxyHandler = http.TimeoutHandler(proxyHandler, beTimeout, "Backend timeout")
 	}
 
+	// Is there a configured API key to add to HTTP requests?
+	var apiKey *server.APIKey
+	const CNFAPIKeyHeader = "APIKeyHeader"
+	const CNFAPIKeyValue = "APIKeyValue"
+	if viper.IsSet(CNFAPIKeyHeader) && viper.IsSet(CNFAPIKeyValue) {
+		apiKey = &server.APIKey{
+			HeaderName: viper.GetString(CNFAPIKeyHeader),
+			Key:        viper.GetString(CNFAPIKeyValue),
+		}
+	}
+
 	srv := &http.Server{
 		// Wrap the HTTP handler with authentication middleware.
-		Handler: server.AuthMiddleware(proxyHandler, mdstore),
+		Handler: server.AuthMiddleware(proxyHandler, mdstore, apiKey),
 
 		// In order to use the authentication middleware, the server needs
 		// to have a ConnContext configured so the middleware can access
