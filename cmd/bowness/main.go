@@ -11,6 +11,7 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -64,6 +65,10 @@ func waitForShutdownSignal() {
 	<-signals
 }
 
+// This is meant to be set at build time with -ldflags,
+// for instance with "git describe" or a hard coded version number.
+var version = "version not set at build time"
+
 func main() {
 	viper.SetDefault("MetadataURL", "https://md.swefed.se/kontosynk/kontosynk-prod-1.jws")
 	viper.SetDefault("DefaultCacheTTL", 3600)
@@ -78,9 +83,33 @@ func main() {
 	viper.SetDefault("LimitRequestsPerSecond", 10.0)
 	viper.SetDefault("LimitBurst", 50)
 
+	var versionFlag bool
+	flag.BoolVar(&versionFlag, "version", false, "display program version and exit")
+	flag.BoolVar(&versionFlag, "v", false, "alias for version")
+
+	var helpFlag bool
+	flag.BoolVar(&helpFlag, "help", false, "display command line usage and exit")
+	flag.BoolVar(&helpFlag, "h", false, "alias for help")
+
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] <config-file>\nWhere options can include:\n", os.Args[0])
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
+	if helpFlag {
+		flag.Usage()
+		return
+	}
+
+	if versionFlag {
+		fmt.Fprintf(os.Stdout, "bowness reverse proxy (%s)\n", version)
+		return
+	}
+
 	if flag.NArg() < 1 {
+		flag.Usage()
 		log.Fatal("Missing configuration file path")
 	}
 

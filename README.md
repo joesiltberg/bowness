@@ -50,6 +50,13 @@ The following headers will be added by the reverse proxy:
 After installing the Go toolchain, go to the directory `cmd/bowness` and
 run `go build`. This should give you an executable (`bowness`).
 
+If you're in a git repository you can use the `build.sh` script to build
+instead. This will set a suitable version in the binary (so the -v flag works).
+
+If you're building from a tagged version, the version number will simply be
+the tag name. Otherwise information about the commit and whether or not your
+working directory had local changes when building will be included.
+
 ### Configuring and running
 Bowness reads its configuration from a YAML file, which could look like this:
 
