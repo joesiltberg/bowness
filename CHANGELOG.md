@@ -1,6 +1,6 @@
 ## Releases
 
-## Unreleased
+## v1.1.0 (2023-05-10)
 #### New features
   - The bowness binary now has a -v/--version commnand line flag (#4)
   - The reverse proxy can now be configured to use an API key (#5)
