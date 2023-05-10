@@ -46,6 +46,9 @@ The following headers will be added by the reverse proxy:
  * X-Fedtlsauth-Organization-Id (if available in the metadata)
  * X-Forwarded-For (ip of the client)
 
+You can also configure an API key which the reverse proxy will
+add as a header when making requests to your backend.
+
 ### Building
 After installing the Go toolchain, go to the directory `cmd/bowness` and
 run `go build`. This should give you an executable (`bowness`).
@@ -118,6 +121,13 @@ fails (typically due to network error).
 
 `BadContentRetry` determines how often we re-try when there's a problem
 verifying or parsing the metadata.
+
+If you want to use an API key when making requests to the backend:
+
+```
+APIKeyHeader: X-API-Key
+APIKeyValue: yourverysecretkeygoeshere
+```
 
 ## Go middleware
 If you're developing your backend in Go the authentication middleware

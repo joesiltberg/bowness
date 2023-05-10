@@ -3,6 +3,7 @@
 ## Unreleased
 #### New features
   - The bowness binary now has a -v/--version commnand line flag (#4)
+  - The reverse proxy can now be configured to use an API key (#5)
 
 ## v1.0.0 (2023-02-22)
   - Normalization of entity IDs was removed.
