@@ -3,10 +3,10 @@ WORKDIR /usr/src/bowness
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY . .
-RUN go build -v /usr/src/bowness/cmd/bowness
+RUN cd cmd/bowness && ./build.sh
 
 FROM debian:11
 RUN apt-get update && apt-get install -y ca-certificates
 WORKDIR /app
-COPY --from=build /usr/src/bowness/bowness .
+COPY --from=build /usr/src/bowness/cmd/bowness .
 CMD ["./bowness", "config.yaml"]
