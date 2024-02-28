@@ -1,5 +1,11 @@
 ## Releases
 
+## v1.1.1 (2024-02-28)
+#### Security patches
+  - Upgrades github.com/lestrrat-go/jwx/v2 to v2.0.19
+    It seems unlikely that the security issues addressed in this version of
+    the jwx package would affect bowness.
+
 ## v1.1.0 (2023-05-10)
 #### New features
   - The bowness binary now has a -v/--version commnand line flag (#4)
