@@ -1,5 +1,9 @@
 ## Releases
 
+## Unreleased
+#### Misc
+  - Golang upgraded to v1.22
+
 ## v1.1.1 (2024-02-28)
 #### Security patches
   - Upgrades github.com/lestrrat-go/jwx/v2 to v2.0.19
