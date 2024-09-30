@@ -1,8 +1,13 @@
 ## Releases
 
-## Unreleased
+## v1.1.3 (2024-09-30)
 #### Misc
   - Golang upgraded to v1.22
+
+## v1.1.2 (2024-04-16)
+  - Upgrades github.com/lestrrat-go/jwx/v2 to v2.0.21
+    It seems unlikely that the security issues addressed in this version of
+    the jwx package would affect bowness.
 
 ## v1.1.1 (2024-02-28)
 #### Security patches
