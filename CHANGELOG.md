@@ -1,5 +1,12 @@
 ## Releases
 
+## v1.1.4 (2025-01-07)
+#### Misc
+  - Upgraded dependencies due to a security alert (CVE-2024-45337)
+    The security issue does not seem to affect bowness (the issue
+    was in the ssh package of golang.org/x/crypto, and bowness does
+    not implement SSH).
+
 ## v1.1.3 (2024-09-30)
 #### Misc
   - Golang upgraded to v1.22
