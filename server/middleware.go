@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Joe Siltberg
+ * Copyright (c) 2020-2025 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
@@ -24,8 +24,8 @@ const (
 
 const (
 	entityIDHeader       string = "X-FedTLSAuth-Entity-ID"
-	organizationHeader          = "X-FedTLSAuth-Organization"
-	organizationIDHeader        = "X-FedTLSAuth-Organization-ID"
+	organizationHeader   string = "X-FedTLSAuth-Organization"
+	organizationIDHeader string = "X-FedTLSAuth-Organization-ID"
 )
 
 // EntityIDFromContext returns the authenticated entity ID

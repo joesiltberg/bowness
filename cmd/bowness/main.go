@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Joe Siltberg
+ * Copyright (c) 2020-2025 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
@@ -59,7 +59,7 @@ func configuredSeconds(setting string) time.Duration {
 }
 
 func waitForShutdownSignal() {
-	signals := make(chan os.Signal)
+	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	<-signals
@@ -95,6 +95,7 @@ func main() {
 	flag.BoolVar(&helpFlag, "h", false, "alias for help")
 
 	flag.Usage = func() {
+		//nolint:errcheck
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] <config-file>\nWhere options can include:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
@@ -107,6 +108,7 @@ func main() {
 	}
 
 	if versionFlag {
+		//nolint:errcheck
 		fmt.Fprintf(os.Stdout, "bowness reverse proxy (%s)\n", version)
 		return
 	}
