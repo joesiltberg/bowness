@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Joe Siltberg
+ * Copyright (c) 2020-2025 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
@@ -10,7 +10,7 @@ package fedtls
 import (
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -155,8 +155,9 @@ func fetch(url string, fetched chan<- fetchResult) {
 		if err != nil {
 			fetched <- fetchResult{nil, err}
 		} else {
-			body, err := ioutil.ReadAll(response.Body)
+			body, err := io.ReadAll(response.Body)
 			fetched <- fetchResult{body, err}
+			//nolint:errcheck
 			response.Body.Close()
 		}
 	}()
@@ -208,7 +209,7 @@ func (mdstore *MetadataStore) LookupClient(verifiedChains [][]*x509.Certificate)
 			}
 		}
 	}
-	return "", nil, nil, fmt.Errorf("Failed to find client pin (%s) in metadata", fingerprint)
+	return "", nil, nil, fmt.Errorf("failed to find client pin (%s) in metadata", fingerprint)
 }
 
 // This function is the actual metadata store. It runs in a goroutine and
@@ -230,7 +231,7 @@ func metadataFetcher(
 		}
 	}
 
-	jwks, err := ioutil.ReadFile(jwksPath)
+	jwks, err := os.ReadFile(jwksPath)
 
 	if err != nil {
 		log.Fatalf("Failed to read from JWKS file (%s): %v", jwksPath, err)
@@ -238,7 +239,7 @@ func metadataFetcher(
 
 	workingCache := false
 
-	content, err := ioutil.ReadFile(cachedPath)
+	content, err := os.ReadFile(cachedPath)
 
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatalf("Failed to read from metadata cache file (%s): %v", cachedPath, err)
@@ -290,7 +291,7 @@ func metadataFetcher(
 				notifyAll()
 				retry = time.After(durationToRefresh(time.Now(),
 					cacheTTL(time.Duration(newParsed.CacheTTL)*time.Second, options.DefaultCacheTTL)))
-				err := ioutil.WriteFile(cachedPath, fetchResult.body, 0600)
+				err := os.WriteFile(cachedPath, fetchResult.body, 0600)
 				if err != nil {
 					log.Printf("Failed to write to cache file (%s): %v", cachedPath, err)
 				}
