@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2020-2021 Joe Siltberg
+ * Copyright (c) 2020-2025 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
  */
-
+//nolint:errcheck
 package main
 
 import (
@@ -58,7 +58,7 @@ func main() {
 
 	srv := &http.Server{
 		// Wrap the HTTP handler with authentication middleware.
-		Handler: server.AuthMiddleware(http.HandlerFunc(myHandler), mdstore),
+		Handler: server.AuthMiddleware(http.HandlerFunc(myHandler), mdstore, nil),
 
 		// In order to use the authentication middleware, the server needs
 		// to have a ConnContext configured so the middleware can access
