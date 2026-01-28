@@ -68,7 +68,7 @@ servermetadata \
   -base-uri "https://api.example.org/v1" \
   -cert selfsigned.pem \
   -issuer selfsigned.pem \
-  -description "Example API Server"
+  -description "Example API Server" \
   -tag "apiv1"
 ```
 
