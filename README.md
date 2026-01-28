@@ -164,3 +164,8 @@ $ sudo docker run \
 ```
 
 Bowness assumes `config.yaml` is located in `/app` inside the container.
+
+## Fetching and verifying metadata
+
+Included in bowness is also a small command line tool for downloading and
+verifying signed metadata (writing the unencoded payload to a file). See the [fetchmetadata documentation](cmd/fetchmetadata/README.md) for usage instructions.
