@@ -63,9 +63,9 @@ type Issuer struct {
 
 // Server includes the information the client needs about a server which it wants to connect to
 type Server struct {
-	Description *string  `json:"description"`
+	Description *string  `json:"description,omitempty"`
 	BaseURI     string   `json:"base_uri"`
-	Tags        []string `json:"tags"`
+	Tags        []string `json:"tags,omitempty"`
 	Pins        []Pin    `json:"pins"`
 }
 
@@ -82,6 +82,6 @@ type Entity struct {
 // Metadata is the complete representation of all entities in the federation
 type Metadata struct {
 	Version  string   `json:"version"`
-	CacheTTL int      `json:"cache_ttl"`
+	CacheTTL int      `json:"cache_ttl,omitempty"`
 	Entities []Entity `json:"entities"`
 }

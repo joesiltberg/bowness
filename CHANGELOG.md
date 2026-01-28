@@ -1,5 +1,9 @@
 ## Releases
 
+## Unreleased
+#### New features
+  - A tool for generating server metadata (#18)
+
 ## v1.1.4 (2025-01-07)
 #### Misc
   - Upgraded dependencies due to a security alert (CVE-2024-45337)
