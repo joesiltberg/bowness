@@ -1,3 +1,6 @@
 examples/middleware/middleware
 cmd/bowness/bowness
+cmd/bowness/bowness.exe
+cmd/servermetadata/servermetadata
+cmd/servermetadata/servermetadata.exe
 *.debug

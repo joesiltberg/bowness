@@ -129,6 +129,10 @@ APIKeyHeader: X-API-Key
 APIKeyValue: yourverysecretkeygoeshere
 ```
 
+## Generating server metadata
+
+The `servermetadata` tool generates metadata JSON for your server, which can be submitted to a federation operator. See the [servermetadata documentation](cmd/servermetadata/README.md) for usage instructions.
+
 ## Go middleware
 If you're developing your backend in Go the authentication middleware
 can be used directly by your code if you prefer. See the example
