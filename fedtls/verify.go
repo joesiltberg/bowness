@@ -17,10 +17,30 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
+// VerifyOption is an option for the Verify and VerifyRaw functions.
+type VerifyOption func(*verifyOptions)
+
+type verifyOptions struct {
+	inferAlgorithm bool
+}
+
+// WithInferAlgorithm enables algorithm inference from the key type when the key
+// is missing the alg property.
+func WithInferAlgorithm(v bool) VerifyOption {
+	return func(o *verifyOptions) {
+		o.inferAlgorithm = v
+	}
+}
+
 // VerifyRaw verifies the signed metadata using the provided JWKS.
 // It returns the raw payload if the verification is successful.
 // See Verify for a version that also unmarshals the payload into a Metadata struct.
-func VerifyRaw(signed, jwks []byte) ([]byte, error) {
+func VerifyRaw(signed, jwks []byte, opts ...VerifyOption) ([]byte, error) {
+	var options verifyOptions
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	keyset, err := jwk.Parse(jwks)
 
 	if err != nil {
@@ -33,7 +53,7 @@ func VerifyRaw(signed, jwks []byte) ([]byte, error) {
 		return nil, fmt.Errorf("failed to parse JWS: %v", err)
 	}
 
-	payload, err := jws.Verify(signed, jws.WithKeySet(keyset))
+	payload, err := jws.Verify(signed, jws.WithKeySet(keyset, jws.WithInferAlgorithmFromKey(options.inferAlgorithm)))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify JWS: %v", err)
@@ -52,8 +72,8 @@ func VerifyRaw(signed, jwks []byte) ([]byte, error) {
 
 // Verify verifies the signed metadata using the provided JWKS.
 // It returns the parsed Metadata if the verification is successful.
-func Verify(signed, jwks []byte) (*Metadata, error) {
-	payload, err := VerifyRaw(signed, jwks)
+func Verify(signed, jwks []byte, opts ...VerifyOption) (*Metadata, error) {
+	payload, err := VerifyRaw(signed, jwks, opts...)
 	if err != nil {
 		return nil, err
 	}
