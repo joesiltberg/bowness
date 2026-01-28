@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Joe Siltberg
+ * Copyright (c) 2020-2026 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
@@ -17,7 +17,10 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
-func verify(signed, jwks []byte) (*Metadata, error) {
+// VerifyRaw verifies the signed metadata using the provided JWKS.
+// It returns the raw payload if the verification is successful.
+// See Verify for a version that also unmarshals the payload into a Metadata struct.
+func VerifyRaw(signed, jwks []byte) ([]byte, error) {
 	keyset, err := jwk.Parse(jwks)
 
 	if err != nil {
@@ -42,6 +45,17 @@ func verify(signed, jwks []byte) (*Metadata, error) {
 		if time.Now().After(exp) {
 			return nil, fmt.Errorf("metadata expired at %v, current time: %v", exp, time.Now())
 		}
+	}
+
+	return payload, nil
+}
+
+// Verify verifies the signed metadata using the provided JWKS.
+// It returns the parsed Metadata if the verification is successful.
+func Verify(signed, jwks []byte) (*Metadata, error) {
+	payload, err := VerifyRaw(signed, jwks)
+	if err != nil {
+		return nil, err
 	}
 
 	var result Metadata

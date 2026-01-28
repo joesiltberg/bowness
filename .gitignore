@@ -3,4 +3,6 @@ cmd/bowness/bowness
 cmd/bowness/bowness.exe
 cmd/servermetadata/servermetadata
 cmd/servermetadata/servermetadata.exe
+cmd/fetchmetadata/fetchmetadata
+cmd/fetchmetadata/fetchmetadata.exe
 *.debug
