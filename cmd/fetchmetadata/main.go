@@ -109,6 +109,7 @@ func getCacheTTL(data []byte) int {
 }
 
 // downloadAndVerify downloads the signed metadata, verifies it, and writes the payload to output.
+// The timeout parameter specifies the HTTP request timeout in seconds.
 func downloadAndVerify(keysPath, urlStr, outputPath string, inferAlg bool, timeout int) error {
 	jwks, err := os.ReadFile(keysPath)
 	if err != nil {
