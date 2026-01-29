@@ -246,7 +246,7 @@ func metadataFetcher(
 	}
 
 	if err == nil {
-		metadata, err := verify(content, jwks)
+		metadata, err := Verify(content, jwks)
 
 		if err != nil {
 			log.Printf("Failed to verify cached file: %v", err)
@@ -280,7 +280,7 @@ func metadataFetcher(
 				retry = time.After(options.NetworkRetry)
 				continue
 			}
-			newParsed, err := verify(fetchResult.body, jwks)
+			newParsed, err := Verify(fetchResult.body, jwks)
 
 			if err != nil {
 				log.Printf("Failed to verify metadata: %v", err)

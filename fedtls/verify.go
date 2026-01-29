@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Joe Siltberg
+ * Copyright (c) 2020-2026 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
@@ -17,7 +17,30 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jws"
 )
 
-func verify(signed, jwks []byte) (*Metadata, error) {
+// VerifyOption is an option for the Verify and VerifyRaw functions.
+type VerifyOption func(*verifyOptions)
+
+type verifyOptions struct {
+	inferAlgorithm bool
+}
+
+// WithInferAlgorithm enables algorithm inference from the key type when the key
+// is missing the alg property.
+func WithInferAlgorithm(v bool) VerifyOption {
+	return func(o *verifyOptions) {
+		o.inferAlgorithm = v
+	}
+}
+
+// VerifyRaw verifies the signed metadata using the provided JWKS.
+// It returns the raw payload if the verification is successful.
+// See Verify for a version that also unmarshals the payload into a Metadata struct.
+func VerifyRaw(signed, jwks []byte, opts ...VerifyOption) ([]byte, error) {
+	var options verifyOptions
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	keyset, err := jwk.Parse(jwks)
 
 	if err != nil {
@@ -30,7 +53,7 @@ func verify(signed, jwks []byte) (*Metadata, error) {
 		return nil, fmt.Errorf("failed to parse JWS: %v", err)
 	}
 
-	payload, err := jws.Verify(signed, jws.WithKeySet(keyset))
+	payload, err := jws.Verify(signed, jws.WithKeySet(keyset, jws.WithInferAlgorithmFromKey(options.inferAlgorithm)))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify JWS: %v", err)
@@ -42,6 +65,17 @@ func verify(signed, jwks []byte) (*Metadata, error) {
 		if time.Now().After(exp) {
 			return nil, fmt.Errorf("metadata expired at %v, current time: %v", exp, time.Now())
 		}
+	}
+
+	return payload, nil
+}
+
+// Verify verifies the signed metadata using the provided JWKS.
+// It returns the parsed Metadata if the verification is successful.
+func Verify(signed, jwks []byte, opts ...VerifyOption) (*Metadata, error) {
+	payload, err := VerifyRaw(signed, jwks, opts...)
+	if err != nil {
+		return nil, err
 	}
 
 	var result Metadata
