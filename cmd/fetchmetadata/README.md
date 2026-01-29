@@ -22,6 +22,7 @@ fetchmetadata -keys <jwks-file> -url <metadata-url> -output <output-file> [optio
 |-------------|-------------|
 | `-cached`   | Path to a previously downloaded and verified payload for caching |
 | `-inferalg` | Infer signature algorithm from key type if the key is missing the `alg` property |
+| `-timeout`  | HTTP request timeout in seconds (default: 30) |
 
 ## Caching
 
@@ -37,6 +38,12 @@ Cache validity is determined by the file's modification time and the `cache_ttl`
 ## Algorithm Inference
 
 By default, each key in the JWKS must have an `alg` property specifying the signature algorithm. If your JWKS lacks this property, use `-inferalg` to let the tool infer compatible algorithms based on the key type.
+
+## HTTP Timeout
+
+The `-timeout` parameter controls how long the tool will wait for the HTTP request to complete when downloading metadata. The default is 30 seconds.
+
+The timeout must be a positive integer value in seconds.
 
 ## Examples
 
@@ -62,6 +69,12 @@ With algorithm inference:
 
 ```
 fetchmetadata -keys federation.jwks -url https://md.example.org/metadata.jws -output metadata.json -inferalg
+```
+
+With custom timeout (60 seconds):
+
+```
+fetchmetadata -keys federation.jwks -url https://md.example.org/metadata.jws -output metadata.json -timeout 60
 ```
 
 ## Exit Codes

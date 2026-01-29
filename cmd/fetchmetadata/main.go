@@ -27,11 +27,17 @@ func main() {
 	outputPath := flag.String("output", "", "path to file where the verified payload should be written (required)")
 	cachedPath := flag.String("cached", "", "path to previously downloaded and verified payload (optional)")
 	inferAlg := flag.Bool("inferalg", false, "infer algorithm from key type if key is missing alg property (optional)")
+	timeout := flag.Int("timeout", 30, "HTTP request timeout in seconds (optional, default: 30)")
 
 	flag.Parse()
 
 	if *keysPath == "" || *urlStr == "" || *outputPath == "" {
 		flag.Usage()
+		os.Exit(1)
+	}
+
+	if *timeout <= 0 {
+		fmt.Fprintf(os.Stderr, "Error: timeout must be greater than 0\n")
 		os.Exit(1)
 	}
 
@@ -43,7 +49,7 @@ func main() {
 	}
 
 	// Download and verify metadata
-	if err := downloadAndVerify(*keysPath, *urlStr, *outputPath, *inferAlg); err != nil {
+	if err := downloadAndVerify(*keysPath, *urlStr, *outputPath, *inferAlg, *timeout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
@@ -103,13 +109,18 @@ func getCacheTTL(data []byte) int {
 }
 
 // downloadAndVerify downloads the signed metadata, verifies it, and writes the payload to output.
-func downloadAndVerify(keysPath, urlStr, outputPath string, inferAlg bool) error {
+// The timeout parameter specifies the HTTP request timeout in seconds.
+func downloadAndVerify(keysPath, urlStr, outputPath string, inferAlg bool, timeout int) error {
 	jwks, err := os.ReadFile(keysPath)
 	if err != nil {
 		return fmt.Errorf("failed to read JWKS file: %w", err)
 	}
 
-	resp, err := http.Get(urlStr)
+	client := &http.Client{
+		Timeout: time.Duration(timeout) * time.Second,
+	}
+
+	resp, err := client.Get(urlStr)
 	if err != nil {
 		return fmt.Errorf("failed to download metadata: %w", err)
 	}
