@@ -113,6 +113,7 @@ func downloadAndVerify(keysPath, urlStr, outputPath string, inferAlg bool) error
 	if err != nil {
 		return fmt.Errorf("failed to download metadata: %w", err)
 	}
+	//nolint:errcheck
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
