@@ -41,7 +41,7 @@ By default, each key in the JWKS must have an `alg` property specifying the sign
 
 ## HTTP Timeout
 
-The `-timeout` parameter controls how long the tool will wait for the HTTP request to complete when downloading metadata. The default is 30 seconds. You may need to increase this value for slow network connections or decrease it for faster failure detection.
+The `-timeout` parameter controls how long the tool will wait for the HTTP request to complete when downloading metadata. The default is 30 seconds.
 
 The timeout must be a positive integer value in seconds.
 
