@@ -36,6 +36,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if *timeout <= 0 {
+		fmt.Fprintf(os.Stderr, "Error: timeout must be greater than 0\n")
+		os.Exit(1)
+	}
+
 	// Check if we can use the cached file
 	if *cachedPath != "" {
 		if useCached(*cachedPath, *outputPath) {
