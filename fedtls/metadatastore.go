@@ -123,6 +123,12 @@ func (mdstore *MetadataStore) GetIssuerCertificates() IssuersPerEntity {
 	return issuersPerEntity(mdstore.getParsed())
 }
 
+// GetMetadata returns the current parsed metadata.
+// The returned pointer should be treated as read-only.
+func (mdstore *MetadataStore) GetMetadata() *Metadata {
+	return mdstore.getParsed()
+}
+
 func durationToRefresh(lastFetch time.Time, cacheTTL time.Duration) time.Duration {
 	if lastFetch.After(time.Now()) {
 		// Shouldn't really happen, but could happen e.g. if the cache file's
