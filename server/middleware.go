@@ -58,7 +58,7 @@ func encodeHeaderValue(value string, encoding HeaderEncoding) string {
 }
 
 // HeaderEncodings configures the encoding used for each federated TLS auth header.
-// A zero value uses NoEncoding for every header, which preserves existing behaviour.
+// A zero value uses NoEncoding for every header.
 type HeaderEncodings struct {
 	EntityID       HeaderEncoding
 	Organization   HeaderEncoding

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Joe Siltberg
+ * Copyright (c) 2020-2026 Joe Siltberg
  *
  * You should have received a copy of the MIT license along with this project.
  * If not, see <https://opensource.org/licenses/MIT>.
