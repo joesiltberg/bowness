@@ -129,6 +129,24 @@ APIKeyHeader: X-API-Key
 APIKeyValue: yourverysecretkeygoeshere
 ```
 
+Some of the headers added by the reverse proxy may contain non-ASCII characters
+(for example, organization names). You can configure how these headers are encoded:
+
+```
+EncodeEntityId: base64
+EncodeOrganization: url
+EncodeOrganizationId: url
+```
+
+The supported encodings are `url` (percent-encoding, as in `url.QueryEscape`) and
+`base64` (standard base64 encoding). The encoding names are case-insensitive.
+If a setting is not specified the header value is sent as-is (typically UTF-8),
+which is the default behaviour.
+
+If using bowness together with Moa, encodings are unlikely to be needed for
+entity ID and organization ID since entity ID should already be a valid
+URI and Swedish organization IDs should be ASCII only.
+
 ## Generating server metadata
 
 The `servermetadata` tool generates metadata JSON for your server, which can be submitted to a federation operator. See the [servermetadata documentation](cmd/servermetadata/README.md) for usage instructions.

@@ -175,9 +175,26 @@ func main() {
 		}
 	}
 
+	// Read optional header encoding settings.
+	headerEncodings := server.HeaderEncodings{}
+	encodingSettings := map[string]*server.HeaderEncoding{
+		"EncodeEntityId":       &headerEncodings.EntityID,
+		"EncodeOrganization":   &headerEncodings.Organization,
+		"EncodeOrganizationId": &headerEncodings.OrganizationID,
+	}
+	for key, dest := range encodingSettings {
+		if viper.IsSet(key) {
+			enc, err := server.ParseHeaderEncoding(viper.GetString(key))
+			if err != nil {
+				log.Fatalf("Invalid value for configuration setting %s: %v", key, err)
+			}
+			*dest = enc
+		}
+	}
+
 	srv := &http.Server{
 		// Wrap the HTTP handler with authentication middleware.
-		Handler: server.AuthMiddleware(proxyHandler, mdstore, apiKey),
+		Handler: server.AuthMiddleware(proxyHandler, mdstore, apiKey, server.WithHeaderEncodings(headerEncodings)),
 
 		// In order to use the authentication middleware, the server needs
 		// to have a ConnContext configured so the middleware can access

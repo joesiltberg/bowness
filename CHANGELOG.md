@@ -3,6 +3,7 @@
 ## Unreleased
 #### New features
   - A tool for generating server metadata (#18)
+  - Configurable encoding (url or base64) for the X-FedTLSAuth headers (#24)
 
 ## v1.1.4 (2025-01-07)
 #### Misc

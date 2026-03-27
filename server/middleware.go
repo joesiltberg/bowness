@@ -9,10 +9,61 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/joesiltberg/bowness/fedtls"
 )
+
+// HeaderEncoding represents how a header value should be encoded.
+type HeaderEncoding int
+
+const (
+	// NoEncoding sends the header value as-is (default behaviour).
+	NoEncoding HeaderEncoding = iota
+	// URLEncoding percent-encodes the header value (compatible with url.QueryEscape).
+	URLEncoding
+	// Base64Encoding encodes the header value with standard base64 encoding.
+	Base64Encoding
+)
+
+// ParseHeaderEncoding parses a case-insensitive encoding name.
+// Accepted values are "" (no encoding), "url", and "base64".
+func ParseHeaderEncoding(s string) (HeaderEncoding, error) {
+	switch strings.ToLower(s) {
+	case "":
+		return NoEncoding, nil
+	case "url":
+		return URLEncoding, nil
+	case "base64":
+		return Base64Encoding, nil
+	default:
+		return NoEncoding, fmt.Errorf("unknown header encoding %q, accepted values are \"url\" and \"base64\" (leave unset for no encoding)", s)
+	}
+}
+
+// encodeHeaderValue applies the given encoding to value.
+func encodeHeaderValue(value string, encoding HeaderEncoding) string {
+	switch encoding {
+	case URLEncoding:
+		return url.QueryEscape(value)
+	case Base64Encoding:
+		return base64.StdEncoding.EncodeToString([]byte(value))
+	default:
+		return value
+	}
+}
+
+// HeaderEncodings configures the encoding used for each federated TLS auth header.
+// A zero value uses NoEncoding for every header.
+type HeaderEncodings struct {
+	EntityID       HeaderEncoding
+	Organization   HeaderEncoding
+	OrganizationID HeaderEncoding
+}
 
 type entityContextKey int
 
@@ -55,9 +106,9 @@ func OrganizationIDFromContext(ctx context.Context) *string {
 
 // Sets or clears an HTTP header depending on whether the value sent
 // in is nil or not.
-func setOrClear(h http.Header, headerName string, value *string) {
+func setOrClear(h http.Header, headerName string, value *string, encoding HeaderEncoding) {
 	if value != nil {
-		h.Set(headerName, *value)
+		h.Set(headerName, encodeHeaderValue(*value, encoding))
 	} else {
 		h.Del(headerName)
 	}
@@ -70,13 +121,36 @@ type APIKey struct {
 	Key        string // The actual API key
 }
 
+// AuthMiddlewareOption is a functional option for configuring AuthMiddleware.
+type AuthMiddlewareOption func(*authMiddlewareConfig)
+
+type authMiddlewareConfig struct {
+	encodings HeaderEncodings
+}
+
+// WithHeaderEncodings returns an AuthMiddlewareOption that configures the
+// encoding used for the X-FedTLSAuth headers forwarded to the backend.
+func WithHeaderEncodings(enc HeaderEncodings) AuthMiddlewareOption {
+	return func(cfg *authMiddlewareConfig) {
+		cfg.encodings = enc
+	}
+}
+
 // AuthMiddleware is the authentication middlware for federated TLS authentication.
 //
 // It assumes that the http.Server is set up with a ConnContext as provided
 // by ContextModifier() so that the middleware can access the connection of
 // the request and store some authentication state in the context associated
 // with the connection.
-func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKey) http.Handler {
+//
+// Optional configuration can be provided using AuthMiddlewareOption values,
+// for example WithHeaderEncodings.
+func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKey, opts ...AuthMiddlewareOption) http.Handler {
+	cfg := &authMiddlewareConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	enc := cfg.encodings
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -112,9 +186,9 @@ func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKe
 		newContext = context.WithValue(newContext, organizationIDKey, orgID)
 		r2 := r.Clone(newContext)
 
-		r2.Header.Set(entityIDHeader, entityID)
-		setOrClear(r2.Header, organizationHeader, org)
-		setOrClear(r2.Header, organizationIDHeader, orgID)
+		r2.Header.Set(entityIDHeader, encodeHeaderValue(entityID, enc.EntityID))
+		setOrClear(r2.Header, organizationHeader, org, enc.Organization)
+		setOrClear(r2.Header, organizationIDHeader, orgID, enc.OrganizationID)
 
 		if apiKey != nil {
 			r2.Header.Set(apiKey.HeaderName, apiKey.Key)
