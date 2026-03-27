@@ -121,6 +121,21 @@ type APIKey struct {
 	Key        string // The actual API key
 }
 
+// AuthMiddlewareOption is a functional option for configuring AuthMiddleware.
+type AuthMiddlewareOption func(*authMiddlewareConfig)
+
+type authMiddlewareConfig struct {
+	encodings HeaderEncodings
+}
+
+// WithHeaderEncodings returns an AuthMiddlewareOption that configures the
+// encoding used for the X-FedTLSAuth headers forwarded to the backend.
+func WithHeaderEncodings(enc HeaderEncodings) AuthMiddlewareOption {
+	return func(cfg *authMiddlewareConfig) {
+		cfg.encodings = enc
+	}
+}
+
 // AuthMiddleware is the authentication middlware for federated TLS authentication.
 //
 // It assumes that the http.Server is set up with a ConnContext as provided
@@ -128,13 +143,14 @@ type APIKey struct {
 // the request and store some authentication state in the context associated
 // with the connection.
 //
-// encodings configures optional encoding for the federated TLS auth headers.
-// Pass nil to use the default behaviour (no encoding).
-func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKey, encodings *HeaderEncodings) http.Handler {
-	var enc HeaderEncodings
-	if encodings != nil {
-		enc = *encodings
+// Optional configuration can be provided using AuthMiddlewareOption values,
+// for example WithHeaderEncodings.
+func AuthMiddleware(h http.Handler, mdstore *fedtls.MetadataStore, apiKey *APIKey, opts ...AuthMiddlewareOption) http.Handler {
+	cfg := &authMiddlewareConfig{}
+	for _, opt := range opts {
+		opt(cfg)
 	}
+	enc := cfg.encodings
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

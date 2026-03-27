@@ -133,8 +133,8 @@ Some of the headers added by the reverse proxy may contain non-ASCII characters
 (for example, organization names). You can configure how these headers are encoded:
 
 ```
-EncodeEntityId: url
-EncodeOrganization: base64
+EncodeEntityId: base64
+EncodeOrganization: url
 EncodeOrganizationId: url
 ```
 

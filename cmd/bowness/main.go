@@ -176,7 +176,7 @@ func main() {
 	}
 
 	// Read optional header encoding settings.
-	headerEncodings := &server.HeaderEncodings{}
+	headerEncodings := server.HeaderEncodings{}
 	encodingSettings := map[string]*server.HeaderEncoding{
 		"EncodeEntityId":       &headerEncodings.EntityID,
 		"EncodeOrganization":   &headerEncodings.Organization,
@@ -194,7 +194,7 @@ func main() {
 
 	srv := &http.Server{
 		// Wrap the HTTP handler with authentication middleware.
-		Handler: server.AuthMiddleware(proxyHandler, mdstore, apiKey, headerEncodings),
+		Handler: server.AuthMiddleware(proxyHandler, mdstore, apiKey, server.WithHeaderEncodings(headerEncodings)),
 
 		// In order to use the authentication middleware, the server needs
 		// to have a ConnContext configured so the middleware can access
