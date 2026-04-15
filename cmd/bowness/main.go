@@ -85,6 +85,7 @@ func main() {
 	viper.SetDefault("EnableLimiting", false)
 	viper.SetDefault("LimitRequestsPerSecond", 10.0)
 	viper.SetDefault("LimitBurst", 50)
+	viper.SetDefault("MaxMetadataSize", 50)
 
 	var versionFlag bool
 	flag.BoolVar(&versionFlag, "version", false, "display program version and exit")
@@ -132,7 +133,8 @@ func main() {
 		viper.GetString("CachePath"),
 		fedtls.DefaultCacheTTL(configuredSeconds("DefaultCacheTTL")),
 		fedtls.NetworkRetry(configuredSeconds("NetworkRetry")),
-		fedtls.BadContentRetry(configuredSeconds("BadContentRetry")))
+		fedtls.BadContentRetry(configuredSeconds("BadContentRetry")),
+		fedtls.MaxMetadataSize(int64(viper.GetInt("MaxMetadataSize"))*1024*1024))
 
 	certFile := viper.GetString("Cert")
 	keyFile := viper.GetString("Key")

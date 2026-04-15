@@ -122,6 +122,17 @@ fails (typically due to network error).
 `BadContentRetry` determines how often we re-try when there's a problem
 verifying or parsing the metadata.
 
+You can also configure the maximum allowed size (in MiB) for a metadata
+response. This protects against out-of-memory conditions if a metadata
+server returns an unexpectedly large response:
+
+```
+MaxMetadataSize: 50
+```
+
+The default is 50 MiB, which should be more than enough for most federation
+metadata.
+
 If you want to use an API key when making requests to the backend:
 
 ```
