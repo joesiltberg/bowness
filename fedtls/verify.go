@@ -60,7 +60,11 @@ func VerifyRaw(signed, jwks []byte, opts ...VerifyOption) ([]byte, error) {
 	}
 
 	if expstr, ok := message.Signatures()[0].ProtectedHeaders().Get("exp"); ok {
-		exp := time.Unix(int64(expstr.(float64)), 0)
+		expFloat, ok := expstr.(float64)
+		if !ok {
+			return nil, fmt.Errorf("exp header has unexpected type %T", expstr)
+		}
+		exp := time.Unix(int64(expFloat), 0)
 
 		if time.Now().After(exp) {
 			return nil, fmt.Errorf("metadata expired at %v, current time: %v", exp, time.Now())
