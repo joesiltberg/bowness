@@ -1,5 +1,9 @@
 ## Releases
 
+## Unreleased
+#### Security fixes
+  - The MetadataStore now uses a timeout when fetching metadata (#26)
+
 ## v1.2.0 (2026-03-27)
 #### New features
   - A tool for generating server metadata (#18)

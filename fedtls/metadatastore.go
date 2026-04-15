@@ -49,6 +49,9 @@ type MetadataStoreOptions struct {
 
 	// Used when the verification fails or we can't parse the metadata
 	BadContentRetry time.Duration
+
+	// Timeout for HTTP requests when fetching metadata
+	FetchTimeout time.Duration
 }
 
 // An OptionSetter is a function for modifying the metadata store options
@@ -75,6 +78,13 @@ func BadContentRetry(duration time.Duration) OptionSetter {
 	}
 }
 
+// FetchTimeout creates an OptionSetter for setting the HTTP request timeout
+func FetchTimeout(duration time.Duration) OptionSetter {
+	return func(options *MetadataStoreOptions) {
+		options.FetchTimeout = duration
+	}
+}
+
 // NewMetadataStore constructs a new MetadataStore and starts its goroutine
 func NewMetadataStore(url, jwksPath, cachedPath string, setters ...OptionSetter) *MetadataStore {
 	ms := MetadataStore{
@@ -87,6 +97,7 @@ func NewMetadataStore(url, jwksPath, cachedPath string, setters ...OptionSetter)
 		DefaultCacheTTL: 3600 * time.Second,
 		NetworkRetry:    1 * time.Minute,
 		BadContentRetry: 1 * time.Hour,
+		FetchTimeout:    30 * time.Second,
 	}
 
 	for _, setter := range setters {
@@ -153,10 +164,10 @@ type fetchResult struct {
 }
 
 // An async HTTP GET, sends its result to a channel
-func fetch(url string, fetched chan<- fetchResult) {
+func fetch(url string, client *http.Client, fetched chan<- fetchResult) {
 	log.Printf("Fetching new metadata from %s", url)
 	go func() {
-		response, err := http.Get(url)
+		response, err := client.Get(url)
 
 		if err != nil {
 			fetched <- fetchResult{nil, err}
@@ -273,6 +284,10 @@ func metadataFetcher(
 
 	fetched := make(chan fetchResult)
 
+	client := &http.Client{
+		Timeout: options.FetchTimeout,
+	}
+
 	for {
 		select {
 		case <-mdstore.quit:
@@ -303,7 +318,7 @@ func metadataFetcher(
 				}
 			}
 		case <-retry:
-			fetch(url, fetched)
+			fetch(url, client, fetched)
 		}
 	}
 }
