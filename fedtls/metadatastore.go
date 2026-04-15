@@ -52,6 +52,9 @@ type MetadataStoreOptions struct {
 
 	// Timeout for HTTP requests when fetching metadata
 	FetchTimeout time.Duration
+
+	// Maximum size in bytes of a metadata response body
+	MaxMetadataSize int64
 }
 
 // An OptionSetter is a function for modifying the metadata store options
@@ -85,6 +88,13 @@ func FetchTimeout(duration time.Duration) OptionSetter {
 	}
 }
 
+// MaxMetadataSize creates an OptionSetter for setting the maximum metadata response size in bytes
+func MaxMetadataSize(size int64) OptionSetter {
+	return func(options *MetadataStoreOptions) {
+		options.MaxMetadataSize = size
+	}
+}
+
 // NewMetadataStore constructs a new MetadataStore and starts its goroutine
 func NewMetadataStore(url, jwksPath, cachedPath string, setters ...OptionSetter) *MetadataStore {
 	ms := MetadataStore{
@@ -98,6 +108,7 @@ func NewMetadataStore(url, jwksPath, cachedPath string, setters ...OptionSetter)
 		NetworkRetry:    1 * time.Minute,
 		BadContentRetry: 1 * time.Hour,
 		FetchTimeout:    30 * time.Second,
+		MaxMetadataSize: 50 * 1024 * 1024, // 50 MiB
 	}
 
 	for _, setter := range setters {
@@ -164,7 +175,7 @@ type fetchResult struct {
 }
 
 // An async HTTP GET, sends its result to a channel
-func fetch(url string, client *http.Client, fetched chan<- fetchResult) {
+func fetch(url string, client *http.Client, maxSize int64, fetched chan<- fetchResult) {
 	log.Printf("Fetching new metadata from %s", url)
 	go func() {
 		response, err := client.Get(url)
@@ -172,10 +183,16 @@ func fetch(url string, client *http.Client, fetched chan<- fetchResult) {
 		if err != nil {
 			fetched <- fetchResult{nil, err}
 		} else {
-			body, err := io.ReadAll(response.Body)
-			fetched <- fetchResult{body, err}
+			body, err := io.ReadAll(io.LimitReader(response.Body, maxSize+1))
 			//nolint:errcheck
 			response.Body.Close()
+			if err != nil {
+				fetched <- fetchResult{nil, err}
+			} else if int64(len(body)) > maxSize {
+				fetched <- fetchResult{nil, fmt.Errorf("metadata response exceeds maximum size (%d bytes)", maxSize)}
+			} else {
+				fetched <- fetchResult{body, nil}
+			}
 		}
 	}()
 }
@@ -318,7 +335,7 @@ func metadataFetcher(
 				}
 			}
 		case <-retry:
-			fetch(url, client, fetched)
+			fetch(url, client, options.MaxMetadataSize, fetched)
 		}
 	}
 }
