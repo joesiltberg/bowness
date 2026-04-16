@@ -108,7 +108,7 @@ func NewMetadataStore(url, jwksPath, cachedPath string, setters ...OptionSetter)
 		NetworkRetry:    1 * time.Minute,
 		BadContentRetry: 1 * time.Hour,
 		FetchTimeout:    30 * time.Second,
-		MaxMetadataSize: 50 * 1024 * 1024, // 50 MiB
+		MaxMetadataSize: 100 * 1024 * 1024, // 100 MiB
 	}
 
 	for _, setter := range setters {

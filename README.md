@@ -127,10 +127,10 @@ response. This protects against out-of-memory conditions if a metadata
 server returns an unexpectedly large response:
 
 ```
-MaxMetadataSize: 50
+MaxMetadataSize: 100
 ```
 
-The default is 50 MiB, which should be more than enough for most federation
+The default is 100 MiB, which should be more than enough for most federation
 metadata.
 
 If you want to use an API key when making requests to the backend:

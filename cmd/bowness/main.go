@@ -85,7 +85,7 @@ func main() {
 	viper.SetDefault("EnableLimiting", false)
 	viper.SetDefault("LimitRequestsPerSecond", 10.0)
 	viper.SetDefault("LimitBurst", 50)
-	viper.SetDefault("MaxMetadataSize", 50)
+	viper.SetDefault("MaxMetadataSize", 100)
 	viper.SetDefault("ShutdownTimeout", 30)
 
 	var versionFlag bool
