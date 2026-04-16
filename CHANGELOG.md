@@ -6,6 +6,9 @@
   - Fixed unchecked type assertion in JWS expiration header parsing (#28)
   - The MetadataStore now limits the size of downloaded metadata (#30)
 
+#### Misc
+  - The reverse proxy graceful shutdown now has a timeout (#34)
+
 ## v1.2.0 (2026-03-27)
 #### New features
   - A tool for generating server metadata (#18)

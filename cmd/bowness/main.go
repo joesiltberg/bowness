@@ -86,6 +86,7 @@ func main() {
 	viper.SetDefault("LimitRequestsPerSecond", 10.0)
 	viper.SetDefault("LimitBurst", 50)
 	viper.SetDefault("MaxMetadataSize", 50)
+	viper.SetDefault("ShutdownTimeout", 30)
 
 	var versionFlag bool
 	flag.BoolVar(&versionFlag, "version", false, "display program version and exit")
@@ -230,7 +231,10 @@ func main() {
 
 	log.Printf("Shutting down, waiting for active requests to finish...")
 
-	err = srv.Shutdown(context.Background())
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), configuredSeconds("ShutdownTimeout"))
+	defer cancel()
+
+	err = srv.Shutdown(shutdownCtx)
 	if err != nil {
 		log.Printf("Failed to gracefully shutdown server: %v", err)
 	}
