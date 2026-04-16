@@ -32,10 +32,9 @@ type TLSConfigManager struct {
 // both when we're creating the default and the current config.
 func baseTLSConfig(certs []tls.Certificate) *tls.Config {
 	return &tls.Config{
-		Certificates:             certs,
-		ClientAuth:               tls.RequireAndVerifyClientCert,
-		MinVersion:               tls.VersionTLS12,
-		PreferServerCipherSuites: true,
+		Certificates: certs,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		MinVersion:   tls.VersionTLS12,
 	}
 }
 
