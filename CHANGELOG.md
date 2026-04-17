@@ -1,6 +1,6 @@
 ## Releases
 
-## Unreleased
+## v1.2.1
 #### Security fixes
   - The MetadataStore now uses a timeout when fetching metadata (#26)
   - Fixed unchecked type assertion in JWS expiration header parsing (#28)
