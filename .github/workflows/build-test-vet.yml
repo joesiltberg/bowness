@@ -1,0 +1,66 @@
+name: build-test-vet
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Verify repository build, test, and vet
+        run: |
+          go build ./...
+          go test ./...
+          go vet ./...
+
+      - name: Build CLI binaries
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          mkdir -p dist/bowness dist/fetchmetadata dist/servermetadata
+
+          pushd cmd/bowness
+          bash ./build.sh
+          install -m 0755 bowness ../../dist/bowness/bowness
+          popd
+
+          go build -o dist/fetchmetadata/fetchmetadata ./cmd/fetchmetadata
+          go build -o dist/servermetadata/servermetadata ./cmd/servermetadata
+
+      - name: Upload bowness artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bowness-linux-amd64
+          path: dist/bowness/bowness
+          if-no-files-found: error
+
+      - name: Upload fetchmetadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fetchmetadata-linux-amd64
+          path: dist/fetchmetadata/fetchmetadata
+          if-no-files-found: error
+
+      - name: Upload servermetadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: servermetadata-linux-amd64
+          path: dist/servermetadata/servermetadata
+          if-no-files-found: error
